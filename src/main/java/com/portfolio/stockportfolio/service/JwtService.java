@@ -27,12 +27,17 @@ public class JwtService {
     }
 
     public String extractName(String token) {
-        return parser().verifyWith(getSigningKey(secretKey)).build().parseSignedClaims(token).getPayload();
+        return parser().verifyWith(getSigningKey(secretKey)).build().parseSignedClaims(token).getPayload().getSubject();
 
     }
 
     public Boolean isTokenValid(String token, UserDetails userDetails) {
-            return true;
+          String username = extractName(token);
+          return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    private boolean isTokenExpired(String token){
+         return parser().verifyWith(getSigningKey(secretKey)).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
     private SecretKey getSigningKey(String secretKey){
