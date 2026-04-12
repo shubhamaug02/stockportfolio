@@ -1,6 +1,7 @@
 package com.portfolio.stockportfolio.service;
 
 import com.portfolio.stockportfolio.entity.Holding;
+import com.portfolio.stockportfolio.entity.User;
 import com.portfolio.stockportfolio.repository.HoldingRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +16,19 @@ public class HoldingService {
          this.holdingRepository = holdingRepository;
     }
 
-    public List<Holding> getAllHoldings(){
-      return holdingRepository.findAll();
+    public List<Holding> getAllHoldings(User user){
+      return holdingRepository.findByUser(user);
     }
 
-    public void buyStock(String symbol, Integer quantity, Double price){
-       Optional<Holding> existedHolding = holdingRepository.findBySymbol(symbol);
+    public void buyStock(String symbol, Integer quantity, Double price, User user){
+       Optional<Holding> existedHolding = holdingRepository.findByUserAndSymbol(user,symbol);
        Holding holding;
        if(existedHolding.isEmpty()){
            holding = new Holding();
            holding.setQuantity(quantity);
            holding.setAvgPrice((price));
            holding.setSymbol(symbol);
+           holding.setUser(user);
          holdingRepository.save(holding);
        }
        else {
@@ -39,8 +41,8 @@ public class HoldingService {
        }
     }
 
-    public void sellStocks(String symbol, Integer quantity) {
-        Optional<Holding> existedHolding = holdingRepository.findBySymbol(symbol);
+    public void sellStocks(String symbol, Integer quantity, User user) {
+        Optional<Holding> existedHolding = holdingRepository.findByUserAndSymbol(user,symbol);
         if(existedHolding.isEmpty()){
             throw new RuntimeException("Holding not found for symbol: " + symbol);
         }
