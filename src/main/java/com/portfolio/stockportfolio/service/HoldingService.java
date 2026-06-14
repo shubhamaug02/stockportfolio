@@ -2,6 +2,8 @@ package com.portfolio.stockportfolio.service;
 
 import com.portfolio.stockportfolio.entity.Holding;
 import com.portfolio.stockportfolio.entity.User;
+import com.portfolio.stockportfolio.exception.HoldingNotFoundException;
+import com.portfolio.stockportfolio.exception.InsufficientQuantityException;
 import com.portfolio.stockportfolio.repository.HoldingRepository;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +46,7 @@ public class HoldingService {
     public void sellStocks(String symbol, Integer quantity, User user) {
         Optional<Holding> existedHolding = holdingRepository.findByUserAndSymbol(user,symbol);
         if(existedHolding.isEmpty()){
-            throw new RuntimeException("Holding not found for symbol: " + symbol);
+            throw new HoldingNotFoundException("Holding not found for symbol: " + symbol);
         }
         Holding holding =  existedHolding.get();
         Integer currQuantity = holding.getQuantity();
@@ -56,7 +58,7 @@ public class HoldingService {
             holdingRepository.delete(holding);
         }
         else {
-           throw new RuntimeException("Cannot sell more than owned. Owned: " + currQuantity + ", Requested: " + quantity);
+           throw new InsufficientQuantityException("Cannot sell more than owned. Owned: " + currQuantity + ", Requested: " + quantity);
         }
 
     }

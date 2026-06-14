@@ -39,9 +39,4 @@ public class HoldingController {
          holdingService.sellStocks(holding.getSymbol(), holding.getQuantity(), getCurrentUser());
          return ResponseEntity.ok().build();
     }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
-        return ResponseEntity.status(400).body(ex.getMessage());
-    }
 }

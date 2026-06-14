@@ -1,6 +1,8 @@
 package com.portfolio.stockportfolio.service;
 
 import com.portfolio.stockportfolio.entity.User;
+import com.portfolio.stockportfolio.exception.DuplicateUsernameException;
+import com.portfolio.stockportfolio.exception.InvalidCredentialsException;
 import com.portfolio.stockportfolio.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,6 +26,9 @@ public class AuthService implements UserDetailsService {
     }
 
     public String register(String username, String password){
+        if(userRepository.findByUsername(username).isPresent()){
+            throw new DuplicateUsernameException("Username already taken !!");
+        }
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
@@ -35,11 +40,11 @@ public class AuthService implements UserDetailsService {
     public String login(String username, String password){
         Optional<User> existedUser = userRepository.findByUsername(username);
         if(existedUser.isEmpty()){
-            throw new RuntimeException("user does not exist");
+            throw new InvalidCredentialsException("Invalid Credentials");
         }
         User user = existedUser.get();
          if(!passwordEncoder.matches(password, user.getPassword())){
-             throw new RuntimeException("Invalid credentials");
+             throw new InvalidCredentialsException("Invalid Credentials");
          }
          return jwtService.generateToken(user);
     }

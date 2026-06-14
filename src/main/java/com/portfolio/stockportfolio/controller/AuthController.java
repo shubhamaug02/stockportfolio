@@ -26,10 +26,4 @@ public class AuthController {
         String response = authService.login(user.getUsername(), user.getPassword());
         return ResponseEntity.ok(response);
     }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleException(RuntimeException exception){
-        return ResponseEntity.status(401).body(exception.getMessage());
-    }
-
 }
