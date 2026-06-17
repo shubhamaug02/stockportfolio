@@ -1,7 +1,9 @@
 package com.portfolio.stockportfolio.controller;
 
-import com.portfolio.stockportfolio.entity.User;
+import com.portfolio.stockportfolio.dto.AuthRequest;
+import com.portfolio.stockportfolio.dto.AuthResponse;
 import com.portfolio.stockportfolio.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,14 +18,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user){
-        String response = authService.register(user.getUsername(), user.getPassword());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRequest authRequest){
+        String response = authService.register(authRequest.username(), authRequest.password());
+        return ResponseEntity.ok(new AuthResponse(response));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
-        String response = authService.login(user.getUsername(), user.getPassword());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest authRequest) {
+        String response = authService.login(authRequest.username(), authRequest.password());
+        return ResponseEntity.ok(new AuthResponse(response));
     }
 }
