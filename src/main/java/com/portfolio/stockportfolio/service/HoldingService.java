@@ -6,6 +6,7 @@ import com.portfolio.stockportfolio.exception.HoldingNotFoundException;
 import com.portfolio.stockportfolio.exception.InsufficientQuantityException;
 import com.portfolio.stockportfolio.repository.HoldingRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +19,12 @@ public class HoldingService {
          this.holdingRepository = holdingRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Holding> getAllHoldings(User user){
       return holdingRepository.findByUser(user);
     }
 
+    @Transactional
     public void buyStock(String symbol, Integer quantity, Double price, User user){
        Optional<Holding> existedHolding = holdingRepository.findByUserAndSymbol(user,symbol);
        Holding holding;
@@ -43,6 +46,7 @@ public class HoldingService {
        }
     }
 
+    @Transactional
     public void sellStocks(String symbol, Integer quantity, User user) {
         Optional<Holding> existedHolding = holdingRepository.findByUserAndSymbol(user,symbol);
         if(existedHolding.isEmpty()){
