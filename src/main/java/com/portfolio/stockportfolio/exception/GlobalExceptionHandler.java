@@ -62,4 +62,10 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(400, message, request.getRequestURI(), LocalDateTime.now());
     }
 
+    @ExceptionHandler(RateLimitExceededException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public ErrorResponse handleRateLimitExceededException(RateLimitExceededException ex, HttpServletRequest request){
+        return new ErrorResponse(429, ex.getMessage(), request.getRequestURI(), LocalDateTime.now());
+    }
+
 }
