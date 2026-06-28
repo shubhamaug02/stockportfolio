@@ -14,7 +14,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Aspect
 @Component
 public class RateLimitAspect {
-    private final ConcurrentHashMap<String, SlidingWindowCounter> counters = new ConcurrentHashMap<>();
+//    private final ConcurrentHashMap<String, SlidingWindowCounter> counters = new ConcurrentHashMap<>();
+
+    private final RedisRateLimiter redisRateLimiter;
+
+    public RateLimitAspect(RedisRateLimiter redisRateLimiter){
+        this.redisRateLimiter = redisRateLimiter;
+    }
 
     @Before("@annotation(rateLimit)")
     public void enforceRateLimit(JoinPoint joinpoint, RateLimit rateLimit){
@@ -24,10 +30,14 @@ public class RateLimitAspect {
         String methodKey = joinpoint.getSignature().toShortString();
         String bucketKey = clientIp + ":" + methodKey;
 
-        SlidingWindowCounter counter = counters.computeIfAbsent(bucketKey, k -> new SlidingWindowCounter(rateLimit.windowSeconds() * 1000L, rateLimit.limit()));
+//        SlidingWindowCounter counter = counters.computeIfAbsent(bucketKey, k -> new SlidingWindowCounter(rateLimit.windowSeconds() * 1000L, rateLimit.limit()));
+//
+//        if(!counter.tryConsume()){
+//            throw new RateLimitExceededException("Too many requests, please try again later");
+//        }
 
-        if(!counter.tryConsume()){
+        if(!redisRateLimiter.isAllowed(bucketKey, rateLimit.limit(), rateLimit.windowSeconds())){
             throw new RateLimitExceededException("Too many requests, please try again later");
         }
-    }
+   }
 }
